@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_session import Session
-import os
+import os  # Ненужный импорт
 
 
 app = Flask(__name__)

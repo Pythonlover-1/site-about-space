@@ -15,6 +15,16 @@ def index():
 def planets():
     wiki_wiki = wikipediaapi.Wikipedia('ru')
     page_py = wiki_wiki.page('Солнечная_система')
+    '''
+    [note] Можно было бы сделать покрасивее,  написав функцию get_content,
+     принимающую массив пар (splitter, index) и возвращающаяя последовательное применение 
+     .split(splitter)[index]
+    '''
+    '''
+    Если кто-то поменяет текст статьи (а такое вполне может случиться),
+     то можно проиграть, получая данные с помощью split(splitter)[ind]
+     Лучше всё-таки поставить try...except блок
+    '''
     data = {
         "t1": page_py.summary.split('Четыре ближайшие к Солнцу планеты')[0],
         "t2": page_py.summary.split('Четыре более удалённые от Солнца')[0].split('на ~0,001 общей массы '
@@ -33,6 +43,7 @@ def planets():
 @app.route("/constellations")
 def constellations():
     data = viki_data('Знаки_зодиака')
+    # [note] 0 не нужен, он по умолчанию стоит (можно просто [:-2])
     data['t2'] = data['t2'][0:-2]
     return render_template('constellations.html', **data)
 
@@ -40,6 +51,8 @@ def constellations():
 @app.route("/zodiac-signs")
 def zodiac_signs():
     data = viki_data('Знаки_зодиака')
+    # [note] 0 не нужен, он по умолчанию стоит (можно просто [:-1])
+    # это же замечание для остальных конструкций вида [0:...]
     data['t2'] = data['t2'][0:-1]
     return render_template('zodiac-signs.html', **data)
 
@@ -75,6 +88,7 @@ def feedback():
         with open('rating.txt', 'r') as file:
             read_file = file.read()
             try:
+                # [note] Можно было не делать list(), а сразу sum(map())
                 data = str(sum(list(map(int, read_file.split()))) / len(read_file.split()))[:4]
             except ZeroDivisionError:
                 print("Rating is null")
@@ -135,13 +149,21 @@ def reg():
         password_error = False
         name_error = False
         availability_error = False
+        # [note] Тут бы, конечно, написать регулярное выражение
+        # (https://docs.python.org/3/library/re.html)
         for letter in name:
             if not (letter.isalnum() or letter == '_'):
                 name_error = True
+
         if password1 != password2:
             password_error = True
         if User.query.filter_by(name=name).first():
             availability_error = True
+        '''
+        Было бы больше ошибок - условие расрасталось бы всё сильне и это выглядело как-то так:
+        cond1 or cond2 or ... or condn
+        Хотелось бы по-другому проверять, что случилась ошибка
+        '''
         if password_error or name_error or availability_error:
             data = {
                 'about': about,
@@ -213,8 +235,19 @@ def horoscope():
         except ValueError:
             data = ''
             sign = ''
+        # Тут лучше использовать capitalize
         if sign == 'рак': sign = 'Рак'
         return render_template('zodiac-signs/horoscope.html', data=data, sign=sign)
+
+
+'''
+В строках ниже про планеты и знаки зодиака очень много копипасты
+Идёт повторение строк
+    data = viki_data(название)
+    data['t2'] = data['t2'][0:какой-то индекс]
+    return render_template('planets/название.html', **data)
+Это заполнение можно было положить в функцию и заполнять через неё
+'''
 
 
 @app.route('/planets/mercury')

@@ -21,6 +21,7 @@ $(document).ready(function () {
 	
 });
 
+// [note] Лучше использовать let/const вместо var (https://dev.to/paritho/3-reasons-to-use-var-in-javascript-1hoe)
 function sticktothebottom() {
     var h = window.innerHeight;
     var window_top = $(window).scrollTop();

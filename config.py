@@ -1,6 +1,8 @@
 import datetime
 import os
 
+
+# Файл с конфигом - круто
 app_dir = os.path.abspath(os.path.dirname(__file__))
 
 
